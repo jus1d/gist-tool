@@ -1,14 +1,12 @@
 package gist
 
 import (
-	"bufio"
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/jus1d/gist-tool/internal/file"
 	"io"
 	"net/http"
-	"os"
-	"path/filepath"
 )
 
 const url = "https://api.github.com/gists"
@@ -22,7 +20,7 @@ func New(token string) *Conn {
 }
 
 func (c *Conn) Create(filepath string) (string, error) {
-	filename, content, err := readFile(filepath)
+	filename, content, err := file.Read(filepath)
 	if err != nil {
 		return "", ErrFileNotExists
 	}
@@ -73,20 +71,4 @@ func (c *Conn) addHeaders(r *http.Request) {
 	r.Header.Set("Accept", "application/vnd.github+json")
 	r.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.token))
 	r.Header.Set("X-GitHub-Api-Version", "2022-11-28")
-}
-
-func readFile(filename string) (name string, content string, err error) {
-	file, err := os.Open(filename)
-	if err != nil {
-		return "", "", err
-	}
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
-
-	for scanner.Scan() {
-		content += scanner.Text() + "\n"
-	}
-
-	return filepath.Base(file.Name()), content, nil
 }

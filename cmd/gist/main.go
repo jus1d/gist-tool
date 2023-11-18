@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/jus1d/gist-tool/gist"
+	"github.com/jus1d/gist-tool/internal/gist"
 )
 
 func main() {
