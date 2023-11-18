@@ -7,6 +7,7 @@ import (
 	"github.com/jus1d/gist-tool/internal/file"
 	"io"
 	"net/http"
+	"strings"
 )
 
 const url = "https://api.github.com/gists"
@@ -64,7 +65,7 @@ func (c *Conn) Create(filepath string) (string, error) {
 		return "", err
 	}
 
-	return resp.URL, nil
+	return strings.ReplaceAll(resp.URL, "\n", ""), nil
 }
 
 func (c *Conn) addHeaders(r *http.Request) {
