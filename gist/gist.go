@@ -1,13 +1,14 @@
 package gist
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 )
 
 const url = "https://api.github.com/gists"
@@ -20,12 +21,11 @@ func New(token string) *Conn {
 	return &Conn{token: token}
 }
 
-func (c *Conn) Create(filename string) (string, error) {
-	contentBytes, err := os.ReadFile(filename)
+func (c *Conn) Create(filepath string) (string, error) {
+	filename, content, err := readFile(filepath)
 	if err != nil {
 		return "", ErrFileNotExists
 	}
-	content := string(contentBytes)
 
 	body := CreateRequest{
 		Description: "",
@@ -75,22 +75,18 @@ func (c *Conn) addHeaders(r *http.Request) {
 	r.Header.Set("X-GitHub-Api-Version", "2022-11-28")
 }
 
-type CreateRequest struct {
-	Description string          `json:"description"`
-	Public      bool            `json:"public"`
-	Files       map[string]File `json:"files"`
-}
+func readFile(filename string) (name string, content string, err error) {
+	file, err := os.Open(filename)
+	if err != nil {
+		return "", "", err
+	}
+	defer file.Close()
 
-type CreateResponse struct {
-	URL string `json:"html_url"`
-}
+	scanner := bufio.NewScanner(file)
 
-type File struct {
-	Content string `json:"content"`
-}
+	for scanner.Scan() {
+		content += scanner.Text() + "\n"
+	}
 
-var (
-	ErrInvalidRequest = errors.New("can't create a request")
-	ErrFileNotExists  = errors.New("file doesn't exists")
-	ErrCantReadBody   = errors.New("can't read response body")
-)
+	return filepath.Base(file.Name()), content, nil
+}
