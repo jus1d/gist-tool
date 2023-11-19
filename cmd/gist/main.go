@@ -8,6 +8,8 @@ import (
 	"github.com/jus1d/gist-tool/internal/gist"
 )
 
+const TOKEN = ""
+
 func main() {
 	var path string
 	var description string
@@ -22,7 +24,7 @@ func main() {
 		_, _ = fmt.Scan(&path)
 	}
 
-	c := gist.New("")
+	c := gist.New(TOKEN)
 	url, err := c.Create(path, description)
 	if err != nil {
 		panic(err)
