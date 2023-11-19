@@ -20,14 +20,18 @@ func New(token string) *Conn {
 	return &Conn{token: token}
 }
 
-func (c *Conn) Create(filepath string) (string, error) {
+func (c *Conn) Create(filepath, description string) (string, error) {
+	if description == "" {
+		description = "Improve yourself using this gist"
+	}
+
 	filename, content, err := file.Read(filepath)
 	if err != nil {
 		return "", ErrFileNotExists
 	}
 
 	body := CreateRequest{
-		Description: "",
+		Description: description,
 		Public:      true,
 		Files: map[string]File{
 			filename: {Content: content},

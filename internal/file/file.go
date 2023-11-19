@@ -26,3 +26,8 @@ func Read(path string) (filename string, content string, err error) {
 
 	return filepath.Base(file.Name()), content, nil
 }
+
+func Exists(filePath string) bool {
+	_, err := os.Stat(filePath)
+	return !os.IsNotExist(err)
+}
